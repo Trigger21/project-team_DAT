@@ -1,0 +1,62 @@
+# r knn 만들기
+
+bk<-read.csv("c:/r/bk.csv",header = T,stringsAsFactors = F)
+
+
+#불필요 컬럼 제거
+train<-bk[-c(1,2,3,5)]
+train<-train[-c(1,3,9)]
+
+#테스트 셋 
+test<-data.frame(용량=50,사은품=1,SPF=50,PA=5,자체케릭터=5,백탁=1,톤=1,미백=1,안티에이징=5,보습=5,패키지.한글=5,끈적임=1,유분기=2,베이스겸용=1,잔여감=1,워터프루프=1,저자극=2)
+
+
+#군집화 그룹 셋 만듬
+group<-bk$판매가.숫자
+group<-gsub(",","",group)
+group[group>=25000 & group<28000]<-'25000원~27999원'
+group[group>=28000 & group<30000]<-'28000원~29999원'
+group[group>=30000 & group<32000]<-'30000원~31999원'
+group[group>=32000 & group<=35000]<-'32000원~35000원'
+
+#군집화 그룹 셋 만듬 정가 버전
+group1[group1>=20000 & group1<30000]<-'20000원~29999원'
+group1[group1>=30000 & group1<40000]<-'30000원~39999원'
+group1[group1>=40000 & group1<50000]<-'40000원~49999원'
+group1[group1>=50000]<-'50000원이상'
+
+
+# 이상치 제거
+group<-group$판매가.숫자[-54]
+train<-train[-54]
+
+# knn
+knn1<- knn(train,test,group,k=3,prob=T)         
+[1] 28000원~29999원
+attr(,"prob")
+[1] 0.3333333
+5 Levels: 21500 25000원~27999원 ... 32000원~35000원
+
+$size
+[1]  43 400 243 126 349
+
+
+
+# knn 그래프 만들기
+
+
+bkg<-read.csv("c:/r/bkg.csv",header = T,stringsAsFactors = F)
+
+# 숫자형으로 변환
+bkg$숫자.판매가<-gsub(",","",bkg$숫자.판매가)
+bkg$숫자.판매가<-as.numeric(bkg$숫자.판매가)
+
+colnames(bkg)<-c('용량','판매가')
+
+
+km<-kmeans(bkg, 5)
+
+library(factoextra)
+fviz_cluster(km, data = bkg,
+             stand=F,                    ## X,Y축의 실제값 보여줌
+             ellipse.type = "t",main = "썬크림 시장 분포도")
