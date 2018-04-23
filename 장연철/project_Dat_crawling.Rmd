@@ -1,0 +1,188 @@
+```{r}
+# R Å©·Ñ¸µ ÇÏ´Â¹ý
+
+#install.packages("rvest")
+library(rvest)
+library(dplyr)
+library(stringr)
+library(KoNLP)
+library(wordcloud2)
+
+# ¼±ºí·Ï
+html<- read_html("https://www.glowpick.com/category_product?id=3")
+
+# Á¦Ç°±º ³» 1~3À§ total
+total <- html_nodes(html,css = "#category1 > div > div > a > span")%>% 
+          html_text()
+total<- strsplit(total,"\n")
+
+total<- unlist(total)
+total<- str_trim(total)
+
+total <- grep("[[:alpha:]]|[[:digit:]]",total,value = T)
+total   #1¹ø ¸ÞÀÌÄ¿ , 2¹ø Á¦Ç°¸í, 3¹ø °¡°Ý, 4¹ø ÆòÁ¡
+
+#¸ÞÀÌÄ¿,Á¦Ç°¸í,°¡°Ý,ÆòÁ¡º°·Î ³ª´©±â
+maker1<- total[c(1,5,9)]
+title1<- total[c(2,6,10)]
+price1<- total[c(3,7,11)]
+star1<- total[c(4,8,12)]
+
+# Á¦Ç°±º ³» 4~10À§ ¸ÞÀÌÄ¿
+maker2 <- html_nodes(html,css = "#category1 > div > div.hidden-xs.pcList > div > div > div.item3 > a > h5")%>% 
+          html_text()
+maker2
+
+# Á¦Ç°±º ³» 4~10À§ Á¦Ç°¸í
+title2 <- html_nodes(html,css = "#category1 > div > div.hidden-xs.pcList > div > div > div.item3 > a > p")%>% 
+          html_text()
+title2
+
+# Á¦Ç°±º ³» 4~10À§ °¡°Ý
+price2 <- html_nodes(html,css = "#category1 > div > div.hidden-xs.pcList > div > div > div.item4")%>% 
+          html_text()
+price2<- gsub("\n","",price2)
+price2<- str_trim(price2)
+
+# Á¦Ç°±º ³» 4~10À§ ÆòÁ¡
+star2 <- html_nodes(html,css = "#category1 > div > div.hidden-xs.pcList > div > div > div.item5")%>% 
+          html_text()
+star2<- gsub("\n","",star2)
+star2<- gsub("Á¡","",star2)
+star2<- str_trim(star2)
+star2<- unlist(strsplit(star2,'/'))
+star2<- star2[c(1,3,5,7,9,11,13)]
+star2
+
+#ÅëÇÕ
+maker<- append(maker1,maker2)
+title<- append(title1,title2)
+price<- append(price1, price2)
+star<- append(star1,star2)
+
+maker
+title
+price
+star
+
+
+# Á¦Ç°±º ³» 1~3À§ µÞ¸µÅ©
+url1 <- html_nodes(html,"#category1 > div > div > a")%>%
+          html_attr('href')
+url1
+
+# Á¦Ç°±º ³» 4~10À§ µÞ¸µÅ©
+url2 <- html_nodes(html,".item3Link" )%>% 
+        html_attr("href")
+url2
+
+url<- append(url1,url2)
+
+  text <- c()
+  id <- c()
+for(j in 1:10){
+
+  html2 <- read_html(paste0("https://www.glowpick.com",url)[j])
+  html2
+  
+  for(i in 1:20){
+    id1<- html_node(html2, paste0("#reviewList > ul > li:nth-child(",i,") > div:nth-child(2) > div > div.reviewerInfo > div:nth-child(1)"))%>%
+        html_text() 
+    id<- c(id,id1)
+    
+    text1<- html_node(html2, paste0("#reviewList > ul > li:nth-child(",i,") > div:nth-child(2) > div > p"))%>%
+        html_text() 
+    text<- c(text,text1)
+  }
+}
+
+#ÅëÇÕ
+text
+id
+
+#id ¾È¿¡ ÀÖ´ø Á¤º¸¸¦ name, age, skin_type ·Î ³ª´©´Â ÀÛ¾÷
+name<- c()
+a<- c()
+for(i in 1:length(id)){
+  name<- c(name,str_split(id, " ")[[i]][1])
+  a<- c(a,str_split(id, " ")[[i]][2])
+}
+
+
+age<- c()
+type<- c()
+for(i in 1:length(id)){
+  age<- c(age,str_split(a, "/")[[i]][1])
+  type<- c(type,str_split(a, "/")[[i]][2])
+}
+
+age<- gsub('\\(',"",age)
+age<- gsub('¼¼',"",age)
+type<- gsub("\\)","",type)
+
+age
+name
+type
+
+maker
+title
+price
+star
+
+#text ÁÖº¯ Á¤¸®
+text<- gsub("\\\r"," ",text)
+text<- gsub("\\\n"," ",text)
+text<- str_trim(text)
+text
+
+review <- data.frame(maker = rep(maker,20), title = rep(title,20), price = rep(price,20), star = rep(star, 20), text = text, age = age, skin_type = type, name = name)
+
+levels(review[,'maker'])<- maker
+review[,'maker']<-sort(review[,'maker'])
+
+levels(review[,'title'])<- title
+review[,'title']<-sort(review[,'title'])
+
+levels(review[,'price'])<- price
+review[,'price']<-sort(review[,'price'])
+
+levels(review[,'star'])<- star
+review[,'star']<-sort(review[,'star'])
+
+review
+
+#data.frame
+write.csv(review,"c:/r/review_project")
+
+
+
+#¿öµå Å¬¶ó¿ìµå "´ëÃæ"
+unlist(text)
+
+text1<- SimplePos09(unlist(text))
+
+text1<-unlist(str_match_all(text1, '([A-Z°¡-ÆR]+)/N'))
+
+text1<-text1[!str_detect(text1, '/')]
+
+text2<- sort(table(text1),decreasing = T)
+
+wordcloud2(text2)
+
+
+a<- read.table("c:/r/pro_5/aaa2.txt",stringsAsFactors = F)
+a<- a$V1
+a<- unique(a)
+a
+
+b<- c(rep(0,length(a)))
+c<- c()
+for(i in 1:length(text)){
+  c<- str_count(text[i],ignore.case(a))
+  b<- b+c
+}
+
+b
+
+```
+
