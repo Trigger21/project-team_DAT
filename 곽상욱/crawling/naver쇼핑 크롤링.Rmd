@@ -1,0 +1,159 @@
+```{r}
+
+#install.packages("rvest")
+library(rvest)
+library(dplyr)
+library(stringr)
+
+beauty<- data.frame(name = c(1:1800),price =c(1:1800) ,type =c(1:1800) ,effect = c(1:1800),volume = c(1:1800), SPF = c(1:1800),PA= c(1:1800), skin_type = c(1:1800),character =c(1:1800),brand = c(1:1800),sell = c(1:1800))
+      
+
+
+for (page in 1:40){
+  html<- read_html(paste0("https://search.shopping.naver.com/search/all.nhn?origQuery=%EC%8D%AC%ED%81%AC%EB%A6%BC&pagingIndex=",page,"&pagingSize=40&productSet=model&viewType=list&sort=rel&cat_id=50000445&frm=NVSHCAT&query=%EC%8D%AC%ED%81%AC%EB%A6%BC"))
+  
+  name <- html_nodes(html,css = "#_search_list > div.search_list.basis > ul > li > div.info > a")%>% 
+             html_text()
+    
+    aaa<- gsub('\\s',' ',name) 
+    aaa<- gsub('    ','',aaa)
+    aaa<- gsub('\\([^()]*\\)','',aaa)
+    aaa<- gsub(' [0-9]*ml','',aaa)
+    name<- gsub(' [0-9]*g','',aaa)
+    name
+    
+  sell <- html_nodes(html,css = "#_search_list > div.search_list.basis > ul > li > div.info > span.price > a")%>%
+    html_text()
+  for(i in 1:length(sell)){
+    aa<- sell[i][grep("판매처",sell[i])]
+    aa<- str_split(aa," ")
+    aa<- aa[[1]][2]
+    beauty$sell[i+((page-1)*40)]<- gsub('^ ','',aa)
+  }
+    
+    
+    for (i in 1:length(name)){
+      beauty$name[i+((page-1)*40)]<- name[i]
+    }
+
+    
+    col <- html_nodes(html,css = "#_search_list > div.search_list.basis > ul > li > div.info > span.detail")%>% 
+      html_text()
+    col<- str_split(col,"\\|")
+    
+    for(i in 1:length(col)){
+      col[[i]][1]<- gsub('\\s',' ',col[[i]][1])
+      col[[i]][1]<- gsub('    ','',col[[i]][1])}
+
+    
+    for (i in 1:length(col)){
+        
+        if (length(is.na(unique(as.vector(str_match(col[[i]],"형태")))))==1){
+          beauty$type[i+((page-1)*40)]<- NA
+        }else{
+          aa<- col[[i]][grep("형태",col[[i]])]
+          aa<- str_split(aa,":")
+          aa<- aa[[1]][2]
+          beauty$type[i+((page-1)*40)]<- gsub('^ ','',aa)
+        }
+
+
+    
+        if (length(is.na(unique(as.vector(str_match(col[[i]],"사용효과")))))==1){
+          beauty$effect[i+((page-1)*40)]<- NA
+        }else{
+          aa<- col[[i]][grep("사용효과",col[[i]])]
+          aa<- str_split(aa,":")
+          aa<- aa[[1]][2]
+          beauty$effect[i+((page-1)*40)]<- gsub('^ ','',aa)
+        }
+
+      
+        if (length(is.na(unique(as.vector(str_match(col[[i]],"용량")))))==1){
+          beauty$volume[i+((page-1)*40)]<- NA
+        }else{
+          aa<- col[[i]][grep("용량",col[[i]])]
+          aa<- str_split(aa,":")
+          aa<- aa[[1]][2]
+          beauty$volume[i+((page-1)*40)]<- gsub('^ ','',aa)
+        }
+
+      
+        if (length(is.na(unique(as.vector(str_match(col[[i]],"자외선차단지수")))))==1){
+          beauty$SPF[i+((page-1)*40)]<- NA
+        }else{
+          aa<- col[[i]][grep("자외선차단지수",col[[i]])]
+          aa<- str_split(aa,":")
+          aa<- aa[[1]][2]
+          beauty$SPF[i+((page-1)*40)]<- gsub('^ ','',aa)
+        }
+
+
+      
+        if (length(is.na(unique(as.vector(str_match(col[[i]],"PA지수")))))==1){
+          beauty$PA[i+((page-1)*40)]<- NA
+        }else{
+          aa<- col[[i]][grep("PA지수",col[[i]])]
+          aa<- str_split(aa,":")
+          aa<- aa[[1]][2]
+          beauty$PA[i+((page-1)*40)]<- gsub('^ ','',aa)
+        }
+
+
+      
+        if (length(is.na(unique(as.vector(str_match(col[[i]],"피부타입")))))==1){
+          beauty$skin_type[i+((page-1)*40)]<- NA
+        }else{
+          aa<- col[[i]][grep("피부타입",col[[i]])]
+          aa<- str_split(aa,":")
+          aa<- aa[[1]][2]
+          beauty$skin_type[i+((page-1)*40)]<- gsub('^ ','',aa)
+        }
+
+
+      
+        if (length(is.na(unique(as.vector(str_match(col[[i]],"특징")))))==1){
+          beauty$character[i+((page-1)*40)]<- NA
+        }else{
+          aa<- col[[i]][grep("특징",col[[i]])]
+          aa<- str_split(aa,":")
+          aa<- aa[[1]][2]
+          beauty$character[i+((page-1)*40)]<- gsub('^ ','',aa)
+        }
+
+    }
+    
+    url <- html_nodes(html,"#_search_list > div.search_list.basis > ul > li > div.info > a")%>%
+    html_attr('href')
+  for(i in 1:length(url)){
+    html2<- read_html(url[i])
+    
+    price <- html_nodes(html2,css = "#_mainSummaryPrice > div.price_area > span > em")%>% 
+      html_text()
+    
+    beauty$price[i+((page-1)*40)]<- price
+    
+    maker1 <- html_nodes(html2,css = "#container > div.summary_area > div.summary_info._itemSection > div > div.goods_info > div:nth-child(1)")%>% 
+      html_text()
+    
+    maker<- str_split(maker1,"\\n")
+    
+    if (length(is.na(unique(as.vector(str_match(maker[[1]],"브랜드")))))==1){
+          beauty$brand[i+((page-1)*40)]<- NA
+        }else{
+          maker<- maker[[1]][grep("브랜드",maker[[1]])]
+          maker<- gsub("                    ","",maker)
+          maker<- gsub("브랜드 ","",maker)
+          beauty$brand[i+((page-1)*40)]<- maker
+        }
+
+  }
+    
+}
+
+beauty
+write.csv(beauty,"c:/r/beauty.csv")
+
+
+```
+
