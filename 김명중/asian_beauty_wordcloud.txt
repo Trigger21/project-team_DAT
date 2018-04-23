@@ -1,0 +1,149 @@
+﻿# 한국 화장품 글로벌 시장 분석
+
+# 미국 커뮤니티 asian beauty 크롤링 분석
+
+library(rvest)
+library(tm)
+library(wordcloud2)
+html<-read_html("https://www.reddit.com/r/AsianBeauty/comments/7zazcw/discussion_sheet_masks_are_undoubtedly_the_most/")
+
+data1<-html_nodes(html, ".linklisting .md, .commentarea .md")%>%
+    html_nodes("p")%>%
+    html_text()
+
+html<-read_html("https://www.reddit.com/r/AsianBeauty/comments/7en099/discussion_i_love_trying_different_sheet_masks/")
+
+data1<-c(data1,html_nodes(html, ".linklisting .md, .commentarea .md")%>%
+    html_nodes("p")%>%
+    html_text())
+
+html<-read_html("https://www.reddit.com/r/AsianBeauty/comments/7e18b0/discussionwhat_is_a_sheet_mask_that_you_love_so/")
+
+data1<-c(data1,html_nodes(html, ".linklisting .md, .commentarea .md")%>%
+    html_nodes("p")%>%
+    html_text())
+
+html<-read_html("https://www.reddit.com/r/AsianBeauty/comments/6jeli3/discussion_what_are_your_favorite_sheet_masks_and/")
+
+data1<-c(data1,html_nodes(html, ".linklisting .md, .commentarea .md")%>%
+    html_nodes("p")%>%
+    html_text())
+
+
+write.csv(data1, file="c:/r/asian.txt", row.names=FALSE)
+
+setwd("c:/r")
+data1 <-read.csv("asian pack.txt",header=F)
+
+corp1 <- VCorpus(VectorSource(data1))
+corp2 <- tm_map(corp1,tolower)
+corp2 <- tm_map(corp2,removePunctuation) 
+corp2 <- tm_map(corp2,removeNumbers)
+corp2 <- tm_map(corp2,PlainTextDocument)
+
+word1 <- c(stopwords('en'), "and","but","not","the","point","for","just","are","you","that","not","your","like",
+"dont","can","one","get","will","use","much","cant","even","maybe","place","many","day","ive","usd","used","makes",
+"arent","find","yeah","thing","doesnt","youre","deleted","put","eat","lot","dont","eat","live","made","haha","make","good","days","house","real","super","week","'ve","bee","line","black","tosowoong","back","green","birds","benton","gonna","tony","diary","months","guess","masking","mine","tbh","thought")
+
+word2 <- c(stopwords("SMART"),
+"whats","video","sounds","put","sit","generally","didnt","understand","shit","theyre","fuck","basically","compared","south","people","mask","masks","skin","sheet","love","products","havent","product","results","bit","found","bit","worth","lol","donkey","ago")
+
+
+corp2 <- tm_map(corp2,removeWords,word1)      
+corp2 <- tm_map(corp2,removeWords,word2)     
+corp2 <- tm_map(corp2,removeWords,stopwords("german"))     
+tdm<-TermDocumentMatrix(corp2)
+
+m1<-as.matrix(tdm)
+
+m2<-sort(rowSums(m1),decreasing=T)
+
+m3<-m2[m2>=10]
+
+wordcloud2(as.table(m3),size=0.5,color = 'random-light',backgroundColor = 'black',minRotation = -pi/5)
+
+
+library(rvest)
+library(tm)
+library(wordcloud2)
+
+html<-read_html("https://www.reddit.com/r/MakeupAddiction/comments/66berl/best_worst_sun_block_sun_care/")
+
+data1<-html_nodes(html, ".linklisting .md, .commentarea .md")%>%
+    html_nodes("p")%>%
+    html_text()
+
+write.csv(data1, file="c:/r/asian sun.txt", row.names=FALSE)
+
+setwd("c:/r")
+data1 <-read.csv("asian sun.txt",header=F)
+
+corp1 <- VCorpus(VectorSource(data1))
+corp2 <- tm_map(corp1,tolower)
+corp2 <- tm_map(corp2,removePunctuation) 
+corp2 <- tm_map(corp2,removeNumbers)
+corp2 <- tm_map(corp2,PlainTextDocument)
+
+word1 <- c(stopwords('en'), "and","but","not","the","point","for","just","are","you","that","not","your","like",
+"dont","can","one","get","will","use","much","cant","even","maybe","place","many","day","ive","usd","used","makes",
+"arent","find","yeah","thing","doesnt","youre","deleted","put","stuff","eat","lot","dont","eat","live","face","made","haha","make","good","time","days","house","real","super","week","'ve","bee","line","black","tosowoong","back","green","birds","benton","gonna","tony","months","times","guess","masking","mine","tbh","thought")
+
+word2 <- c(stopwords("SMART"),
+"whats","video","sounds","put","sit","generally","didnt","understand","shit","theyre","fuck","basically","south","people","mask","masks","skin","sheet","products","havent","product","results","difference","bit","found","bit","worth","lol","donkey","ago","sunscreen","sunscreens","sunblock")
+
+
+corp2 <- tm_map(corp2,removeWords,word1)      
+corp2 <- tm_map(corp2,removeWords,word2)     
+corp2 <- tm_map(corp2,removeWords,stopwords("german"))     
+tdm<-TermDocumentMatrix(corp2)
+
+m1<-as.matrix(tdm)
+
+m2<-sort(rowSums(m1),decreasing=T)
+
+m3<-m2[m2>=5]
+
+wordcloud2(as.table(m3),size=0.5,color = 'random-light',backgroundColor = 'black',minRotation = -pi/5)
+
+
+
+
+
+
+
+# 유튜브 캐릭터 마스크 반응 조사
+
+library(rvest)
+library(tm)
+library(wordcloud2)
+https://www.youtube.com/watch?v=2Bc4-__9tVI
+
+setwd("c:/r")
+data2<-read.csv("mask.csv",header=F)
+
+corp1 <- VCorpus(VectorSource(data2))
+corp2 <- tm_map(corp1,tolower)
+corp2 <- tm_map(corp2,removePunctuation) 
+corp2 <- tm_map(corp2,removeNumbers)
+corp2 <- tm_map(corp2,PlainTextDocument)
+
+word1 <- c(stopwords('en'), "and","but","not","the","point","for","just","are","you","that","not","your","like",
+"dont","can","one","get","will","use","much","cant","even","maybe","place","many","day","ive","usd","used","makes",
+"arent","find","yeah","thing","doesnt","youre","pretty","deleted","put","stuff","floor","eat","lot","dont","eat","live","face","made","haha","make","good","time","days","feel","fit","house","real","super","week","effects","'ve","bee","line","black","feels","tosowoong","back","green","birds","benton","effect","gonna","tony","diary","months","times","guess","korean","masking","mine","tbh","thought")
+
+word2 <- c(stopwords("SMART"),
+"whats","video","sounds","put","sit","generally","didnt","understand","shit","theyre","fuck","basically","compared","south","korea","people","mask","masks","skin","sheet","love","products","havent","product","results","difference","hydration","bit","found","bit","worth","lol","donkey","ago")
+
+
+corp2 <- tm_map(corp2,removeWords,word1)      
+corp2 <- tm_map(corp2,removeWords,word2)     
+corp2 <- tm_map(corp2,removeWords,stopwords("german"))     
+tdm<-TermDocumentMatrix(corp2)
+
+m1<-as.matrix(tdm)
+
+m2<-sort(rowSums(m1),decreasing=T)
+
+m3<-m2[m2>=10]
+
+wordcloud2(as.table(m3),size=0.5,color = 'random-light',backgroundColor = 'black',minRotation = -pi/5)
