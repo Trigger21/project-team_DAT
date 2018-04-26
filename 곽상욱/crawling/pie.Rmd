@@ -1,0 +1,109 @@
+```{r}
+bk <- read.csv("bk_1.csv",header = T,stringsAsFactors = F)
+bk
+```
+```{r}
+spf <- bk$SPF
+spf
+n <- count(bk$SPF)$x
+unique()
+unique(bk$SPF)
+c <- count(bk$SPF)
+c
+a<-count(bk$SPF)$freq
+pie(a,labels = spf)
+
+if(spf >= 40 & spf < 50) {return(40)}
+
+```
+
+```{r}
+getwd()
+setwd('c:/r')
+bk <- read.csv('bk_1.csv', header=T, stringsAsFactors=F, fileEncoding='EUC-KR')
+summary(bk)
+bk[10]
+head(bk[27])
+c <- c(10,11,14,16,17,18,19,20,21,22,23,24,25,26,27)
+b <- c(NULL)
+j <- 1
+for (i in c){
+  print(i)
+  a <- bk[i]
+  b[j] <- list(table(a))
+  j <- j + 1
+}
+par(family="AppleGothic")
+library(RColorBrewer)
+pal <- brewer.pal(5,"Pastel1")
+pie(b[[14]],
+    main = "워터프루프유무",
+    init.angle=50,
+    col=pal
+)
+p <- round(b[[14]]/sum(b[[14]])*100)
+label <- paste(b,p)
+
+
+summary(bk[c(10,11,14,16,17,18,19,20,21,22,23,24,25,26,27)])
+
+cut1 <- bk$SPF
+
+bk_cut <- cut(cut1,breaks = c(10,20,30,40,50,60,91), right = FALSE,
+              labels = c('10','20','30~40','40~50','50','60'))
+
+bk_cut <- gsub("10","ect",bk_cut)
+bk_cut <- gsub("20","ect",bk_cut)
+bk_cut <- gsub("60","ect",bk_cut)
+bk_cut
+tbk_cut<- table(bk_cut)
+b[[1]] <- tbk_cut
+round(b[[1]]/sum(b[[1]])*100)
+main1 <- NA
+for (j in c) {
+  main1[j] <- colnames(bk)[j]}
+main1 <- na.omit(main1)
+main1
+
+for (i in 1:15){
+  p <- round(b[[i]]/sum(b[[i]])*100)
+  dim<- names(b[[i]])
+  label <- paste(dim,p,sep = " is ")
+  label <- paste(label,'%',sep = "")
+  pie(b[[i]],labels = label,
+      main = paste(main1[i],"비율"),
+      init.angle=250,
+      col=pal)
+      }
+
+round(b[[1]]/sum(b[[1]])*100)
+p
+label <- paste(p,'%',sep = "")
+
+dim<- names(b[[1]])
+dim[1]
+
+pie.sales <- c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12)
+names(pie.sales) <- c("Blueberry", "Cherry",
+                      "Apple", "Boston Cream", "Other", "Vanilla Cream")
+pie(pie.sales) # default colours
+pie(pie.sales, col = c("purple", "violetred1", "green3",
+                       "cornsilk", "cyan", "white"))
+pie(pie.sales, col = gray(seq(0.4, 1.0, length = 6)))
+pie(pie.sales, density = 10, angle = 15 + 10 * 1:6)
+
+
+
+p <- round(b[[15]]/sum(b[[15]])*100)
+dim<- names(b[[15]])
+label <- paste(dim,p,sep = " , ")
+label <- paste(label,'%',sep = "")
+pie(b[[15]],labels = label,
+    main = paste(main1[15],"비율"),
+    init.angle=90,
+    col=pal)
+
+b
+main1
+```
+
